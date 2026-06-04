@@ -35,7 +35,7 @@ ASpearProjectile::ASpearProjectile()
 		SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh")); 
 		SkeletalMesh->SetupAttachment(GetRootComponent()); 
 
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/Boss/Boss_Asset/InfinityBladeWeapons/Weapons/Spear/source/SpearofAdun.SpearofAdun'"));
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalAsset(TEXT("/Script/Engine.SkeletalMesh'/Game/_dev/Actor/Item/Spearman/Spear/source/SpearofAdun.SpearofAdun'"));
 		ensure(SkeletalAsset.Object); 
 		SkeletalMesh->SetSkeletalMesh(SkeletalAsset.Object); 
 		SkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -2099,6 +2099,21 @@ TSharedPtr<FJsonValue> FAssetHandlers::DeleteFolder(const TSharedPtr<FJsonObject
 			continue;
 		}
 
+		constexpr int32 MaxSafeForcedFolderDeleteAssets = 500;
+		if (Contained.Num() > MaxSafeForcedFolderDeleteAssets)
+		{
+			Entry->SetStringField(TEXT("status"), TEXT("failed"));
+			Entry->SetStringField(TEXT("reason"), TEXT("too_many_assets_for_force_delete"));
+			Entry->SetNumberField(TEXT("maxSafeAssetCount"), MaxSafeForcedFolderDeleteAssets);
+			TArray<TSharedPtr<FJsonValue>> Sample;
+			const int32 N = FMath::Min(Contained.Num(), 25);
+			for (int32 i = 0; i < N; ++i) Sample.Add(MakeShared<FJsonValueString>(Contained[i]));
+			Entry->SetArrayField(TEXT("assets"), Sample);
+			Failed++;
+			Entries.Add(MakeShared<FJsonValueObject>(Entry));
+			continue;
+		}
+
 		const bool bOk = UEditorAssetLibrary::DeleteDirectory(Norm);
 		if (bOk)
 		{
