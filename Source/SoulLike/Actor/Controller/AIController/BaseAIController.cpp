@@ -144,9 +144,7 @@ void ABaseAIController::MontagePlayRate()
 {
 	if (AAIBaseCharacter* AI = Cast<AAIBaseCharacter>(GetPawn()))
 	{
-		uint32 num = FMath::RandRange(0, 1);
-		if (num) return;
-		AI->PlayRateMontage();
+		AI->TryStartTimedMontagePlayRate();
 	}
 }
 

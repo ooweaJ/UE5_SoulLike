@@ -20,6 +20,8 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION(Server, Reliable)
@@ -48,11 +50,22 @@ public:
 	void PlayRateMontage();
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiPlayRateMontage();
+	void TryStartTimedMontagePlayRate(float PlayRate = 0.3f, float TriggerChance = 0.5f);
+	void EndTimedMontagePlayRate();
 
 	UFUNCTION()
 	void OnUIPopUP(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void OnUIOff(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+protected:
+	UFUNCTION()
+	void OnRep_TimedMontagePlayRate();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiApplyTimedMontagePlayRate(float PlayRate);
+
+	void ApplyTimedMontagePlayRate(float PlayRate);
 
 public:
 	FORCEINLINE void SetMoveDirection(FVector InDirection) { Direction = InDirection; }
@@ -79,4 +92,7 @@ protected:
 	FVector TargetLocation;
 
 	class UUI_BossStatus* ScreenStatusUI;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_TimedMontagePlayRate")
+	float TimedMontagePlayRate = 1.0f;
 };

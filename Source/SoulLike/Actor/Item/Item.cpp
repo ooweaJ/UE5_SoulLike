@@ -260,10 +260,10 @@ void AItem::OnItemAction(int32 Num)
 
 void AItem::MontagePlayRate(UAnimInstance* AnimInstance, float PlayRate)
 {
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_SetPlayRate(CurrentData.AnimMontage, PlayRate);
-	}
+	if (!AnimInstance) return;
+	if (!CurrentData.AnimMontage) return;
+
+	AnimInstance->Montage_SetPlayRate(CurrentData.AnimMontage, PlayRate);
 }
 
 void AItem::EndItem()

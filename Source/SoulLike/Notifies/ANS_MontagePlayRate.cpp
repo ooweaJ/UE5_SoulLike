@@ -1,7 +1,6 @@
 #include "Notifies/ANS_MontagePlayRate.h"
 #include "Actor/Item/Item.h"
 #include "Actor/Character/AI/AIBaseCharacter.h"
-#include "Actor/Controller/AIController/BaseAIController.h"
 
 FString UANS_MontagePlayRate::GetNotifyName_Implementation() const
 {
@@ -16,10 +15,7 @@ void UANS_MontagePlayRate::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 
 	if (AAIBaseCharacter* Ai = Cast<AAIBaseCharacter>(MeshComp->GetOwner()))
 	{
-		if (ABaseAIController* Controller = Cast<ABaseAIController>(Ai->GetController()))
-		{
-			Controller->MontagePlayRate();
-		}
+		Ai->TryStartTimedMontagePlayRate(PlayRate, TriggerChance);
 	}
 
 }
@@ -29,6 +25,11 @@ void UANS_MontagePlayRate::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
 	if (MeshComp == nullptr) return;
+
+	if (AAIBaseCharacter* Ai = Cast<AAIBaseCharacter>(MeshComp->GetOwner()))
+	{
+		Ai->EndTimedMontagePlayRate();
+	}
 
 	if (AItem* Item = GetCurrentItem(MeshComp))
 	{

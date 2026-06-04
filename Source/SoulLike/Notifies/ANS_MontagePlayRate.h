@@ -18,4 +18,11 @@ public:
 
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	float PlayRate = 0.3f;
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	float TriggerChance = 0.5f;
 };

@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "HUD/InGameHUD.h"
 #include "UI/InGame/UI_MainInGame.h"
+#include "Net/UnrealNetwork.h"
 
 
 AAIBaseCharacter::AAIBaseCharacter()
@@ -74,6 +75,14 @@ void AAIBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+void AAIBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AAIBaseCharacter, TimedMontagePlayRate);
+}
+
 #include "Actor/Character/Player/BasePlayer.h"
 float AAIBaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
@@ -265,11 +274,48 @@ void AAIBaseCharacter::OnUIOff(UPrimitiveComponent* OverlappedComponent, AActor*
 
 void AAIBaseCharacter::PlayRateMontage_Implementation()
 {
-	MultiPlayRateMontage();
+	TryStartTimedMontagePlayRate();
 }
 
 void AAIBaseCharacter::MultiPlayRateMontage_Implementation()
 {
-	if (Equip)
-		Equip->GetCurrentItem()->MontagePlayRate(GetMesh()->GetAnimInstance(), 0.3f);
+	ApplyTimedMontagePlayRate(0.3f);
+}
+
+void AAIBaseCharacter::TryStartTimedMontagePlayRate(float PlayRate, float TriggerChance)
+{
+	if (!HasAuthority()) return;
+
+	const float ClampedChance = FMath::Clamp(TriggerChance, 0.0f, 1.0f);
+	if (FMath::FRand() > ClampedChance) return;
+
+	TimedMontagePlayRate = PlayRate;
+	MultiApplyTimedMontagePlayRate(TimedMontagePlayRate);
+}
+
+void AAIBaseCharacter::EndTimedMontagePlayRate()
+{
+	if (!HasAuthority()) return;
+
+	TimedMontagePlayRate = 1.0f;
+	MultiApplyTimedMontagePlayRate(TimedMontagePlayRate);
+}
+
+void AAIBaseCharacter::OnRep_TimedMontagePlayRate()
+{
+	ApplyTimedMontagePlayRate(TimedMontagePlayRate);
+}
+
+void AAIBaseCharacter::MultiApplyTimedMontagePlayRate_Implementation(float PlayRate)
+{
+	ApplyTimedMontagePlayRate(PlayRate);
+}
+
+void AAIBaseCharacter::ApplyTimedMontagePlayRate(float PlayRate)
+{
+	if (!Equip) return;
+	AItem* CurrentItem = Equip->GetCurrentItem();
+	if (!CurrentItem) return;
+
+	CurrentItem->MontagePlayRate(GetMesh()->GetAnimInstance(), PlayRate);
 }

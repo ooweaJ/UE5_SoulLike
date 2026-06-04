@@ -96,7 +96,9 @@ Behavior Tree Task
 
 `BehaviorComponent`는 AIController 내부 컴포넌트로 Blackboard 값을 읽고 쓰는 보조 역할이다.
 
-현재 AIController는 서버에만 존재하는 특성 때문에, 여기에서 결정한 타이밍/랜덤/몽타주 속도 변경은 클라이언트와 어긋날 위험이 있다.
+초기 구조에서는 AIController가 서버에만 존재하는 특성 때문에, 여기에서 결정한 타이밍/랜덤/몽타주 속도 변경이 클라이언트와 어긋날 위험이 있었다.
+
+2026-06-04 1차 수정으로 `ANS_MontagePlayRate`의 직접 AIController 의존은 제거했고, 몽타주 속도 변경 여부와 결과는 `AAIBaseCharacter`의 복제 상태로 옮기기 시작했다.
 
 ## 액션 데이터 구조
 
@@ -149,10 +151,11 @@ UCombatActionDataAsset
 
 현재 특징:
 
-- Notify가 `AItem`, `ABaseCharacter`, `ABaseWeapon`, `ABaseAIController`를 직접 호출한다.
+- Notify가 `AItem`, `ABaseCharacter`, `ABaseWeapon` 등을 직접 호출한다.
 - 충돌 판정 시작/종료도 Notify 타이밍에 강하게 의존한다.
 - `ANS_MoveToTarget`는 `SetActorLocation`을 직접 호출한다.
-- `ANS_MontagePlayRate`는 AIController를 통해 랜덤하게 속도 변경을 요청한다.
+- 초기 구조에서 `ANS_MontagePlayRate`는 AIController를 통해 랜덤하게 속도 변경을 요청했다.
+- 2026-06-04 1차 수정 이후 `ANS_MontagePlayRate`는 `AAIBaseCharacter`에 타이밍 이벤트를 전달하고, 서버 권위 AI 캐릭터가 복제 가능한 속도 상태를 갱신한다.
 
 향후 방향:
 
@@ -179,7 +182,7 @@ UCombatActionDataAsset
 - `UStatusComponent::MP`, `SP`
 - `UStatusComponent::bCanMove`
 - 액션 시작 시간, 몽타주 섹션, 재생 속도
-- AI 타이밍 공격의 랜덤 결과
+- AI 타이밍 공격의 랜덤 결과는 1차 수정으로 `AAIBaseCharacter::TimedMontagePlayRate`에 일부 반영되기 시작했으나, 전체 액션 상태 구조는 아직 부족하다.
 
 현재 액션 네트워크 흐름은 다음에 많이 의존한다.
 
