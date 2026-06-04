@@ -8,6 +8,7 @@
 
 - `work-log/`: 날짜별 작업 기록
 - `architecture/`: 리팩터링 전후 코드 구조, 책임 분리, 런타임 흐름 기록
+- `verification/`: PIE, 빌드, 멀티플레이 동기화 검증 체크리스트와 결과 기록
 - `summaries/`: 프로젝트 목표, 마일스톤, 외부 공유용 요약
 - `decisions/`: 별도로 남길 가치가 있는 기술적 의사결정
 
@@ -16,7 +17,8 @@
 1. `summaries/2026-06-04-modernization-roadmap.md`
 2. `summaries/2026-06-04-execution-plan.md`
 3. `architecture/2026-06-04-current-code-architecture.md`
-4. `work-log/2026-06-04.md`
+4. `verification/2026-06-04-null-oss-pie-checklist.md`
+5. `work-log/2026-06-04.md`
 
 ## 기록 원칙
 

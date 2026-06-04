@@ -122,6 +122,7 @@ Recommended structure:
 - `docs/README.md`: documentation purpose, index, and how to read the records
 - `docs/work-log/YYYY-MM-DD.md`: daily or session-based work record
 - `docs/architecture/YYYY-MM-DD-topic.md`: current or target code architecture, responsibility maps, runtime flows, and refactor baselines
+- `docs/verification/YYYY-MM-DD-topic.md`: build, PIE, multiplayer, asset, and runtime verification checklists or results
 - `docs/decisions/YYYY-MM-DD-topic.md`: important design or technical decisions, only when a decision needs separate explanation
 - `docs/summaries/`: milestone summaries, portfolio-ready summaries, or company-facing summaries
 
@@ -134,6 +135,8 @@ For each `docs/work-log/YYYY-MM-DD.md`, include these sections when relevant:
 - `검증 결과`: build result, editor check, git status, runtime check, or known unverified areas
 - `의사결정`: why this approach was chosen over alternatives
 - `남은 작업`: follow-up tasks and risks
+
+For verification documents, define concrete pass/fail criteria before runtime testing. Prefer recording the map, player count, net mode, tested character, expected result, observed server result, observed client result, and remaining risk.
 
 Do not create generic install manuals unless the user explicitly asks for them or the setup itself was part of the session. If MCP, Git LFS, build setup, asset cleanup, or commit rules matter, record them inside the relevant dated work log or milestone summary instead of making standalone setup documents by default.
 
