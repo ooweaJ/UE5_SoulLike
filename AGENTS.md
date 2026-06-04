@@ -95,6 +95,23 @@ When committing:
 5. Push only when the user explicitly asks to push, or explicitly asks for "커밋 푸시".
 6. After committing or pushing, report the commit hash, message, branch state, and verification result.
 
+For this SoulLike modernization project, the user has requested an automatic commit/push workflow for completed task units. When a meaningful task unit is completed, and the work is no longer an unfinished experiment, automatically commit and push it unless the user explicitly says not to.
+
+Automatic commit/push applies after:
+
+- documentation baseline updates, such as roadmap, work-log, or architecture records
+- C++ changes that have been built or otherwise verified
+- asset cleanup that has been checked with `git status`
+- MCP/tooling setup changes that are stable enough to preserve
+
+Before automatic commit/push:
+
+1. Confirm the change is a coherent task unit.
+2. Keep unrelated dirty files out of the commit.
+3. Prefer running verification when practical.
+4. Use the Korean Conventional Commit format.
+5. Push to the current working branch, normally `main`.
+
 6. Project Documentation Convention
 This project is an AI-assisted legacy Unreal project modernization effort. Documentation should record how the project improves over time, not just static setup instructions.
 
@@ -104,6 +121,7 @@ Recommended structure:
 
 - `docs/README.md`: documentation purpose, index, and how to read the records
 - `docs/work-log/YYYY-MM-DD.md`: daily or session-based work record
+- `docs/architecture/YYYY-MM-DD-topic.md`: current or target code architecture, responsibility maps, runtime flows, and refactor baselines
 - `docs/decisions/YYYY-MM-DD-topic.md`: important design or technical decisions, only when a decision needs separate explanation
 - `docs/summaries/`: milestone summaries, portfolio-ready summaries, or company-facing summaries
 
