@@ -1,4 +1,4 @@
-	#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -20,6 +20,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -55,7 +56,7 @@ public:
 	void SetOffOrient();
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	EStateType Type;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "State", meta = (AllowPrivateAccess = "true"))
+	EStateType Type = EStateType::Idle;
 	class ACharacter* OwnerCharacter;
 };

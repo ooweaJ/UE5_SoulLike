@@ -15,6 +15,7 @@ ABaseCharacter::ABaseCharacter()
 	Equip = CreateDefaultSubobject<UEquipComponent>(TEXT("EquipComponent"));
 	Equip->SetIsReplicated(true);
 	State = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
+	State->SetIsReplicated(true);
 	Status = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComponent"));
 	Status->SetIsReplicated(true);
 	MontageComponent = CreateDefaultSubobject<UMontageComponent>(TEXT("MontageComponent"));

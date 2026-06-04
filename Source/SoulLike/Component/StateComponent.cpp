@@ -3,10 +3,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Component/EquipComponent.h"
 #include "Actor/Item/Weapon/BaseWeapon.h"
+#include "Net/UnrealNetwork.h"
 
 UStateComponent::UStateComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 
 }
 
@@ -21,6 +23,13 @@ void UStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+void UStateComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UStateComponent, Type);
 }
 
 void UStateComponent::SetIdleMode()
