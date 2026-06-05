@@ -175,16 +175,23 @@ void AGrux::AirStart()
 
 void AGrux::PlayAirCombo()
 {
+    if (!HasAuthority()) return;
+
     if (HitPlayer.Num() > 0)
     {
         for (ABasePlayer* Player : HitPlayer)
         {
-            Player->GetCharacterMovement()->GravityScale = 0.5f;
+            if (!IsValid(Player)) continue;
+
+            UCharacterMovementComponent* PlayerMovement = Player->GetCharacterMovement();
+            if (!PlayerMovement) continue;
+
+            PlayerMovement->GravityScale = 0.5f;
             Player->LaunchCharacter(FVector(0, 0, 1000.f), false, true);
             Player->SetAirbone(true);
             Player->StopAnimMontage();
             FDamageEvent de;
-            Player->TakeDamage(50.f, de, GetOwner()->GetInstigatorController(), this);
+            Player->TakeDamage(50.f, de, GetInstigatorController(), this);
         }
         UKismetSystemLibrary::K2_SetTimer(this, "StartAirCombo", 1.f, false);
     }
@@ -192,13 +199,17 @@ void AGrux::PlayAirCombo()
 
 void AGrux::AirDamage()
 {
+    if (!HasAuthority()) return;
+
     if (HitPlayer.Num() > 0)
     {
         for (ABasePlayer* Player : HitPlayer)
         {
+            if (!IsValid(Player)) continue;
+
             Player->LaunchCharacter(FVector(0, 0, 100.f), false, true);
             FDamageEvent de;
-            Player->TakeDamage(20.f, de, GetOwner()->GetInstigatorController(), this);
+            Player->TakeDamage(20.f, de, GetInstigatorController(), this);
 
             if (HitEffect)
             {
@@ -212,6 +223,8 @@ void AGrux::AirDamage()
 
 void AGrux::StartAirCombo()
 {
+    if (!HasAuthority()) return;
+
     bSkill2 = true;
     CenterLocation = GetActorLocation();
     DrawStarPattern(5, 1000.0f);
@@ -221,15 +234,23 @@ void AGrux::StartAirCombo()
 
 void AGrux::EndAirCombo()
 {
+    if (!HasAuthority()) return;
+
     if (HitPlayer.Num() > 0)
     {
         for (ABasePlayer* Player : HitPlayer)
         {
+            if (!IsValid(Player)) continue;
+
             FVector Location = Player->GetActorLocation() - CenterLocation;
             Player->LaunchCharacter(Location * FVector(0,0,-1), false, true);
             FDamageEvent de;
-            Player->TakeDamage(50.f, de, GetOwner()->GetInstigatorController(), this);
-            Player->GetCharacterMovement()->GravityScale = 1.f;
+            Player->TakeDamage(50.f, de, GetInstigatorController(), this);
+
+            if (UCharacterMovementComponent* PlayerMovement = Player->GetCharacterMovement())
+            {
+                PlayerMovement->GravityScale = 1.f;
+            }
 
             if (HitEffect)
             {
@@ -244,6 +265,8 @@ void AGrux::EndAirCombo()
 
 void AGrux::EndSkill2_Implementation()
 {
+    if (!HasAuthority()) return;
+
     HitPlayer.Empty();
     bSkill2 = false;
     bTravel = false;
