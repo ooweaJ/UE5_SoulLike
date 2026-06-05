@@ -177,22 +177,28 @@ void ABasePlayer::OffShift_Implementation()
 
 void ABasePlayer::OnEvade_Implementation()
 {
+	if (!State || !Status) return;
+	if (!State->IsIdleMode()) return;
+	if (Status->SP.Current < -Status->GetEvadeCost()) return;
+
+	Status->StatusModify(Status->SP, Status->GetEvadeCost());
+	State->SetEvadeMode();
+
+	if (!bLockOn && MontageComponent)
+	{
+		MontageComponent->PlayAvoid();
+	}
+
 	MultiOnEvade();
 }
 
 void ABasePlayer::MultiOnEvade_Implementation()
 {
-	if (!State->IsIdleMode()) return;
-	if (Status->SP.Current < -Status->GetEvadeCost()) return;
-	if (bLockOn)
+	if (HasAuthority()) return;
+	if (!State || !Status) return;
+
+	if (!bLockOn && MontageComponent)
 	{
-		Status->StatusModify(Status->SP, Status->GetEvadeCost());
-		State->SetEvadeMode();
-	}
-	else
-	{
-		Status->StatusModify(Status->SP, Status->GetEvadeCost());
-		State->SetEvadeMode();
 		MontageComponent->PlayAvoid();
 	}
 }

@@ -79,16 +79,17 @@ private:
 
 private:
 	float Damage;
+	UPROPERTY(Replicated)
 	bool bCanMove = true;
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status", ReplicatedUsing = "OnRep_Update")
 	FStatus HP;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status", ReplicatedUsing = "OnRep_Update")
 	FStatus MP;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Status", ReplicatedUsing = "OnRep_Update")
 	FStatus SP;
 
 protected:

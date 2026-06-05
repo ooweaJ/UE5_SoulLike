@@ -14,7 +14,7 @@ class SOULLIKE_API ABaseCharacter : public ACharacter , public ICombatInterface
 public:
 	ABaseCharacter();
 
-	FORCEINLINE void SetParrying(bool InParry) { Parrying = InParry; }
+	FORCEINLINE void SetParrying(bool InParry) { if (HasAuthority()) Parrying = InParry; }
 	FORCEINLINE bool GetParrying() { return Parrying; }
 	FORCEINLINE class UStateComponent* GetState() { return State; }
 	FORCEINLINE class UEquipComponent* GetEquip() { return Equip; }
@@ -27,6 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	//virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -54,9 +55,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStatusComponent* Status;
 
-	bool Parrying;
+	UPROPERTY(Replicated)
+	bool Parrying = false;
 
 public:
 	FORCEINLINE bool IsRoll() { return bRoll; }
+	UPROPERTY(Replicated)
 	bool bRoll = false;
 };

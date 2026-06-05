@@ -13,6 +13,7 @@ void UANS_Roll::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 
 	ABasePlayer* Character = Cast<ABasePlayer>(MeshComp->GetOwner());
 	if (Character == nullptr) return;
+	if (!Character->HasAuthority()) return;
 
 	Character->bRoll = true;
 }
@@ -24,6 +25,7 @@ void UANS_Roll::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 
 	ABasePlayer* Character = Cast<ABasePlayer>(MeshComp->GetOwner());
 	if (Character == nullptr) return;
+	if (!Character->HasAuthority()) return;
 
 	Character->bRoll = false;
 }

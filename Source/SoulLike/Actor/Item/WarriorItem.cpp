@@ -8,6 +8,8 @@
 
 void AWarriorItem::OnDamage(ACharacter* InAttacker, AActor* InCauser, ACharacter* InOtherCharacter)
 {
+	if (!HasAuthority()) return;
+
 	if (Parry)
 	{
 		 ABaseCharacter* Target = Cast<ABaseCharacter>(InOtherCharacter);

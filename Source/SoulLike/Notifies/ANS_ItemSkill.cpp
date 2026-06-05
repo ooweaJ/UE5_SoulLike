@@ -12,6 +12,7 @@ void UANS_ItemSkill::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
 
 	if (ABaseWeapon* Weapon = GetCurrentWeapon(MeshComp))
 	{
+		if (!Weapon->HasAuthority()) return;
 		Weapon->OnItemSkillAction();
 	}
 }
@@ -22,6 +23,7 @@ void UANS_ItemSkill::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 
 	if (ABaseWeapon* Weapon = GetCurrentWeapon(MeshComp))
 	{
+		if (!Weapon->HasAuthority()) return;
 		Weapon->OffItemSkillAction();
 	}
 }

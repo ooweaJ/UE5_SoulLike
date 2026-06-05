@@ -12,6 +12,7 @@ void UANS_Parrying::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 	ABaseCharacter* Character = Cast<ABaseCharacter>(MeshComp->GetOwner());
 	if (Character == nullptr) return;
+	if (!Character->HasAuthority()) return;
 
 	Character->SetParrying(true);
 }
@@ -23,6 +24,7 @@ void UANS_Parrying::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 
 	ABaseCharacter* Character = Cast<ABaseCharacter>(MeshComp->GetOwner());
 	if (Character == nullptr) return;
+	if (!Character->HasAuthority()) return;
 
 	Character->SetParrying(false);
 }

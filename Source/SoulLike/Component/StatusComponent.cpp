@@ -6,6 +6,7 @@
 UStatusComponent::UStatusComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 }
 
 void UStatusComponent::BeginPlay()
@@ -17,7 +18,10 @@ void UStatusComponent::BeginPlay()
 void UStatusComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	StatusRegen(SP);
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		StatusRegen(SP);
+	}
 }
 
 void UStatusComponent::SetSpeed_Implementation(EWalkSpeedTpye InType)
@@ -30,6 +34,10 @@ void UStatusComponent::SetSpeed_Implementation(EWalkSpeedTpye InType)
 void UStatusComponent::StatusModify(UPARAM(ref) FStatus& Status, float InAmount)
 {
 	Status.Current = FMath::Clamp(Status.Current+InAmount, 0.f, Status.Max);
+	if (GetOwner() && GetOwner()->HasAuthority())
+	{
+		OnRep_Update();
+	}
 }
 
 float UStatusComponent::StatusPersent(const FStatus& Status)
@@ -43,10 +51,7 @@ void UStatusComponent::StatusRegen(FStatus& Status)
 	{
 		Status.Current = FMath::Clamp(Status.Current + (Status.Regen*GetWorld()->GetDeltaSeconds()), 0.f, Status.Max);
 	}
-	if (GetOwner()->HasAuthority())
-	{
-		OnRep_Update();
-	}
+	OnRep_Update();
 }
 
 void UStatusComponent::SetDamage(float InAmount)
@@ -67,4 +72,7 @@ void UStatusComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UStatusComponent, HP);
+	DOREPLIFETIME(UStatusComponent, MP);
+	DOREPLIFETIME(UStatusComponent, SP);
+	DOREPLIFETIME(UStatusComponent, bCanMove);
 }

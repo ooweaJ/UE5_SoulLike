@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Actor/Item/DamageType/DefaultDamageType.h"
+#include "Net/UnrealNetwork.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -47,6 +48,14 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, Parrying);
+	DOREPLIFETIME(ABaseCharacter, bRoll);
 }
 
 void ABaseCharacter::EndAction()
@@ -107,6 +116,7 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	if (!HasAuthority()) return 0;
 	if (bRoll) return 0;
 	if (State->IsDeadMode()) return 0;
 
