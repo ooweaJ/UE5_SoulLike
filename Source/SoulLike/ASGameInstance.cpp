@@ -112,13 +112,15 @@ void UASGameInstance::LoadMainMenuLevel()
 
 void UASGameInstance::RefreshServerList()
 {
+	if (SessionInterface.IsValid() == false) return;
+
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
 	if (SessionSearch.IsValid())
 	{
-		SessionSearch->bIsLanQuery = true;
+		SessionSearch->bIsLanQuery = IsLANSession();
 		SessionSearch->MaxSearchResults = 100;  
 		SessionSearch->QuerySettings.Set(TEXT("PRESENCESEARCH"), true, EOnlineComparisonOp::Equals);
-		UE_LOG(LogTemp, Error, TEXT("Start Find Sessions"));
+		UE_LOG(LogTemp, Error, TEXT("Start Find Sessions. OSS: %s, LAN: %s"), *GetOnlineSubsystemName().ToString(), SessionSearch->bIsLanQuery ? TEXT("true") : TEXT("false"));
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 	}
 }
@@ -214,8 +216,7 @@ void UASGameInstance::OnJoinSessionComplete(FName InSessionName, EOnJoinSessionC
 	APlayerController* controller = GetFirstLocalPlayerController();
 	if (controller == nullptr) return;
 
-	UGameplayStatics::OpenLevel(GetWorld(), FName(address), true, ClassName);
-	//controller->ClientTravel(address, ETravelType::TRAVEL_Absolute);
+	controller->ClientTravel(address, ETravelType::TRAVEL_Absolute);
 }
 
 void UASGameInstance::OnNetworkFailure(UWorld* InWorld, UNetDriver* InNetDriver, ENetworkFailure::Type InType, const FString& ErrorSting)
@@ -224,25 +225,38 @@ void UASGameInstance::OnNetworkFailure(UWorld* InWorld, UNetDriver* InNetDriver,
 
 }
 
+FName UASGameInstance::GetOnlineSubsystemName() const
+{
+	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get())
+	{
+		return OnlineSubsystem->GetSubsystemName();
+	}
+
+	return NAME_None;
+}
+
+bool UASGameInstance::IsLANSession() const
+{
+	return GetOnlineSubsystemName() == FName(TEXT("NULL"));
+}
+
 void UASGameInstance::CreateSession()
 {
 	if (SessionInterface.IsValid())
 	{
 		FOnlineSessionSettings sessionSettiongs;
-		//if (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL")
-		//{
-		//	sessionSettiongs.bIsLANMatch = true;
-		//}
-		//else
-		//{
-		//	sessionSettiongs.bIsLANMatch = false;
-		//}
-		sessionSettiongs.bIsLANMatch = true;
+		const bool bIsLAN = IsLANSession();
+
+		sessionSettiongs.bIsLANMatch = bIsLAN;
 		sessionSettiongs.NumPublicConnections = 4;
 		sessionSettiongs.bShouldAdvertise = true;
+		sessionSettiongs.bAllowJoinInProgress = true;
+		sessionSettiongs.bAllowJoinViaPresence = true;
 		sessionSettiongs.bUsesPresence = true;
+		sessionSettiongs.bUseLobbiesIfAvailable = !bIsLAN;
 		sessionSettiongs.Set(SEVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
+		UE_LOG(LogTemp, Error, TEXT("Create Session. OSS: %s, LAN: %s, Lobby: %s"), *GetOnlineSubsystemName().ToString(), bIsLAN ? TEXT("true") : TEXT("false"), sessionSettiongs.bUseLobbiesIfAvailable ? TEXT("true") : TEXT("false"));
 		SessionInterface->CreateSession(0, SESSION_NAME, sessionSettiongs);
 	}
 }

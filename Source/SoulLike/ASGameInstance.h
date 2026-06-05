@@ -54,6 +54,8 @@ private:
 
 	void OnNetworkFailure(UWorld* InWorld, UNetDriver* InNetDriver, ENetworkFailure::Type InType, const FString& ErrorSting);
 	void CreateSession();
+	FName GetOnlineSubsystemName() const;
+	bool IsLANSession() const;
 
 	UFUNCTION(BlueprintCallable, Exec)
 	void LoadMainMenu();

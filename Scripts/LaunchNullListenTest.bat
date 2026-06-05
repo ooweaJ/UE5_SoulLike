@@ -22,13 +22,13 @@ if not exist "%PROJECT%" (
 )
 
 echo Starting SoulLike listen server...
-start "SoulLike Listen Server" "%UE_EDITOR%" "%PROJECT%" "%SERVER_URL%" -game -log -windowed -ResX=1280 -ResY=720 -WinX=40 -WinY=40 -nosteam
+start "SoulLike Listen Server" "%UE_EDITOR%" "%PROJECT%" "%SERVER_URL%" -game -log -windowed -NoVSync -ExecCmds="t.IdleWhenNotForeground 0,t.MaxFPS 60,Slate.bAllowThrottling 0,r.VSync 0" -ResX=1280 -ResY=720 -WinX=40 -WinY=40 -nosteam
 
 echo Waiting for the listen server to initialize...
 timeout /t 8 /nobreak >nul
 
 echo Starting SoulLike client...
-start "SoulLike Client" "%UE_EDITOR%" "%PROJECT%" "%CLIENT_URL%" -game -log -windowed -ResX=1280 -ResY=720 -WinX=1360 -WinY=40 -nosteam
+start "SoulLike Client" "%UE_EDITOR%" "%PROJECT%" "%CLIENT_URL%" -game -log -windowed -NoVSync -ExecCmds="t.IdleWhenNotForeground 0,t.MaxFPS 60,Slate.bAllowThrottling 0,r.VSync 0" -ResX=1280 -ResY=720 -WinX=1360 -WinY=40 -nosteam
 
 echo Launch commands were sent.
 endlocal

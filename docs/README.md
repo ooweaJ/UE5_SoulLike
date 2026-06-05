@@ -18,7 +18,9 @@
 2. `summaries/2026-06-04-execution-plan.md`
 3. `architecture/2026-06-04-current-code-architecture.md`
 4. `verification/2026-06-04-null-oss-pie-checklist.md`
-5. `work-log/2026-06-04.md`
+5. `verification/2026-06-05-process-and-steam-oss-checklist.md`
+6. `work-log/2026-06-04.md`
+7. `work-log/2026-06-05.md`
 
 ## 기록 원칙
 
