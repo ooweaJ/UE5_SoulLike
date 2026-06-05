@@ -13,6 +13,9 @@
 #include "UI/ConfigMenuWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetSwitcher.h"
+#include "Component/StateComponent.h"
+#include "Component/StatusComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ABasePlayerController::ABasePlayerController()
 {
@@ -100,14 +103,23 @@ void ABasePlayerController::OnMove(const FInputActionValue& InputActionValue)
 	ABasePlayer* ControlledPawn = Cast<ABasePlayer>(GetPawn());
 
 	if (!ControlledPawn) { return; }
+	Player = ControlledPawn;
+
+	UStateComponent* State = ControlledPawn->GetState();
+	UStatusComponent* Status = ControlledPawn->GetStatus();
+	if (!State || !Status || !Status->IsCanMove() || State->IsEvadeMode() || State->IsStepBackMode() || State->IsHittedMode() || State->IsDeadMode())
+	{
+		ControlledPawn->ForwardInput = 0.f;
+		ControlledPawn->RightInput = 0.f;
+		ControlledPawn->MoveDirection = FVector::ZeroVector;
+		ControlledPawn->WalkingDirectionAngle = 0.f;
+		return;
+	}
 
 	const FRotator Rotation = GetControlRotation();
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 	const FVector ForwardDirection = FRotator(0, ControlledPawn->Camera->GetComponentRotation().Yaw,0).Vector();
 	const FVector RightDirection = FRotator(0, ControlledPawn->Camera->GetComponentRotation().Yaw+90, 0).Vector();
-
-	ControlledPawn->AddMovementInput(ForwardDirection, MovementVector.Y);
-	ControlledPawn->AddMovementInput(RightDirection, MovementVector.X);
 
 	float AngleDampingSpeed = 1;
 
@@ -155,8 +167,16 @@ void ABasePlayerController::OnJump(const FInputActionValue& InputActionValue)
 
 void ABasePlayerController::OnEvade(const FInputActionValue& InputActionValue)
 {
-	FVector LastInput = Player->GetLastMovementInputVector();
+	Player = Cast<ABasePlayer>(GetPawn());
 	if (!Player) return;
+
+	FVector LastInput = Player->GetLastMovementInputVector();
+
+	if (UCharacterMovementComponent* Movement = Player->GetCharacterMovement())
+	{
+		Movement->StopMovementImmediately();
+	}
+
 	if (LastInput.IsNearlyZero())
 		Player->OnStepBack();
 	else
