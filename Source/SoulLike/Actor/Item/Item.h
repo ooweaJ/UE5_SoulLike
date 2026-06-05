@@ -29,9 +29,13 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void AddActionData();
 	void CacheOwnerComponents();
+	FActionData* SetCurrentActionByTag(const FGameplayTag& ActionTag);
 
 	UFUNCTION()
 	void OnRep_OwnerCharacter();
+
+	UFUNCTION()
+	void OnRep_CurrentActionTag();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -81,7 +85,8 @@ protected:
 	class UStateComponent* OwnerState;
 	class UStatusComponent* OwnerStatus;
 	TMap<FGameplayTag, FActionData> ActionTagMap;
-	//UPROPERTY(Replicated)
 	FActionData CurrentData;
+	UPROPERTY(ReplicatedUsing = "OnRep_CurrentActionTag")
+	FGameplayTag CurrentActionTag;
 	bool bItemDataSetup = false;
 };

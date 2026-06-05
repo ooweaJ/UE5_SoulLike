@@ -84,6 +84,11 @@ void AItem::OnRep_OwnerCharacter()
 	}
 }
 
+void AItem::OnRep_CurrentActionTag()
+{
+	SetCurrentActionByTag(CurrentActionTag);
+}
+
 void AItem::AddActionData()
 {
 	if (!ItemData) return;
@@ -114,48 +119,43 @@ FActionData* AItem::GetDefaultAction(uint32 Num)
 {
 	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("Ability.Default." + FString::FromInt(Num)));
 
-	if (FActionData* FoundData = ActionTagMap.Find(TargetTag))
-	{
-		CurrentData = *FoundData;
-		return FoundData;
-	}
-
-	return nullptr;
+	return SetCurrentActionByTag(TargetTag);
 }
 
 FActionData* AItem::GetDefaultAction2(uint32 Num)
 {
 	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("Ability.Default2." + FString::FromInt(Num)));
 
-	if (FActionData* FoundData = ActionTagMap.Find(TargetTag))
-	{
-		CurrentData = *FoundData;
-		return FoundData;
-	}
-
-	return nullptr;
+	return SetCurrentActionByTag(TargetTag);
 }
 
 FActionData* AItem::GetSkillAction(uint32 Num)
 {
 	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("Ability.Skill." + FString::FromInt(Num)));
 
-	if (FActionData* FoundData = ActionTagMap.Find(TargetTag))
-	{
-		CurrentData = *FoundData;
-		return FoundData;
-	}
-
-	return nullptr;
+	return SetCurrentActionByTag(TargetTag);
 }
 
 FActionData* AItem::GetUltimateAction()
 {
 	FGameplayTag TargetTag = FGameplayTag::RequestGameplayTag(FName("Ability.Ultimate"));
 
-	if (FActionData* FoundData = ActionTagMap.Find(TargetTag))
+	return SetCurrentActionByTag(TargetTag);
+}
+
+FActionData* AItem::SetCurrentActionByTag(const FGameplayTag& ActionTag)
+{
+	if (!ActionTag.IsValid()) return nullptr;
+
+	if (ActionTagMap.Num() == 0)
+	{
+		AddActionData();
+	}
+
+	if (FActionData* FoundData = ActionTagMap.Find(ActionTag))
 	{
 		CurrentData = *FoundData;
+		CurrentActionTag = ActionTag;
 		return FoundData;
 	}
 
@@ -320,4 +320,5 @@ void AItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AItem, OwnerCharacter);
+	DOREPLIFETIME(AItem, CurrentActionTag);
 }
