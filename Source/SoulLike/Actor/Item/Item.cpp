@@ -9,14 +9,29 @@
 AItem::AItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = false;
+	bReplicates = true;
+}
+
+void AItem::SetOwnerCharacter(ACharacter* InCharacter)
+{
+	OwnerCharacter = InCharacter;
+	CacheOwnerComponents();
+
+	if (HasActorBegunPlay() && !bItemDataSetup)
+	{
+		SetupItemData();
+	}
 }
 
 void AItem::SetupItemData()
 {
+	if (bItemDataSetup) return;
+	if (!OwnerCharacter) return;
+
 	if (ItemData)
 	{
 		AddActionData();
+		if (!ItemData->ItemInfoData.Attachment) return;
 		{
 			FTransform DefaultTransform;
 			AAttachment* Actor = GetWorld()->SpawnActorDeferred<AAttachment>(ItemData->ItemInfoData.Attachment, DefaultTransform, OwnerCharacter, OwnerCharacter, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
@@ -26,14 +41,28 @@ void AItem::SetupItemData()
 			Attachment->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), ItemData->ItemInfoData.SocketName);
 		}
 	}
+
+	bItemDataSetup = true;
 }
 
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (!OwnerCharacter)
+	{
+		OwnerCharacter = Cast<ACharacter>(GetOwner());
+	}
+
+	CacheOwnerComponents();
 	SetupItemData();
-	
+
+}
+
+void AItem::CacheOwnerComponents()
+{
+	if (!OwnerCharacter) return;
+
 	if (UStateComponent* State = OwnerCharacter->GetComponentByClass<UStateComponent>())
 	{
 		OwnerState = State;
@@ -45,8 +74,21 @@ void AItem::BeginPlay()
 	}
 }
 
+void AItem::OnRep_OwnerCharacter()
+{
+	CacheOwnerComponents();
+
+	if (HasActorBegunPlay() && !bItemDataSetup)
+	{
+		SetupItemData();
+	}
+}
+
 void AItem::AddActionData()
 {
+	if (!ItemData) return;
+	if (!ItemData->ItemInfoData.Data) return;
+
 	TArray<FActionDataTableRow*> row;
 	ItemData->ItemInfoData.Data->GetAllRows<FActionDataTableRow>("", row);
 
@@ -273,12 +315,9 @@ void AItem::EndItem()
 	Destroy();
 }
 
-//
-//void AItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-//{
-//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//	DOREPLIFETIME(AItem, OwnerCharacter);
-//	DOREPLIFETIME(AItem, Attachment);
-//	DOREPLIFETIME(AItem, CurrentData);
-//}
+void AItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AItem, OwnerCharacter);
+}

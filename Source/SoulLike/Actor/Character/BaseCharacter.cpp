@@ -27,13 +27,9 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (DefaultItemClass)
+	if (HasAuthority())
 	{
-		FTransform DefaultTransform;
-		AItem* Item = GetWorld()->SpawnActorDeferred<AItem>(DefaultItemClass, DefaultTransform, this, this, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		Item->SetOwnerCharacter(this);
-		Item->FinishSpawning(DefaultTransform, true);
-		Equip->SetSelectItem(Item);
+		SpawnBaseItem();
 	}
 
 	//SpawnBaseItem();
@@ -96,14 +92,15 @@ void ABaseCharacter::Dead_Implementation()
 
 void ABaseCharacter::SpawnBaseItem_Implementation()
 {
-	if (DefaultItemClass)
-	{
-		FTransform DefaultTransform;
-		AItem* Item = GetWorld()->SpawnActorDeferred<AItem>(DefaultItemClass, DefaultTransform, this, this, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-		Item->SetOwnerCharacter(this);
-		Item->FinishSpawning(DefaultTransform, true);
-		Equip->SetSelectItem(Item);
-	}
+	if (!HasAuthority()) return;
+	if (!DefaultItemClass) return;
+	if (Equip && Equip->GetCurrentItem()) return;
+
+	FTransform DefaultTransform;
+	AItem* Item = GetWorld()->SpawnActorDeferred<AItem>(DefaultItemClass, DefaultTransform, this, this, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	Item->SetOwnerCharacter(this);
+	Item->FinishSpawning(DefaultTransform, true);
+	Equip->SetSelectItem(Item);
 }
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

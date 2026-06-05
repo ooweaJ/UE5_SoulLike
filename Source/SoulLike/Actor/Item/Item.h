@@ -18,7 +18,7 @@ class SOULLIKE_API AItem : public AActor
 public:	
 	AItem();
 
-	FORCEINLINE void SetOwnerCharacter(ACharacter* InCharacter) { OwnerCharacter = InCharacter; }
+	void SetOwnerCharacter(ACharacter* InCharacter);
 	FORCEINLINE class AAttachment* GetAttachment() { return Attachment; }
 	FORCEINLINE FActionData* GetCurrentData() { return &CurrentData; }
 	FORCEINLINE class ACharacter* GetOwnerCharacter() { return OwnerCharacter; }
@@ -26,7 +26,12 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void AddActionData();
+	void CacheOwnerComponents();
+
+	UFUNCTION()
+	void OnRep_OwnerCharacter();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -68,7 +73,7 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	class UCombatActionDataAsset* ItemData;
-	//UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = "OnRep_OwnerCharacter")
 	class ACharacter* OwnerCharacter;
 protected:
 	//UPROPERTY(Replicated)
@@ -78,4 +83,5 @@ protected:
 	TMap<FGameplayTag, FActionData> ActionTagMap;
 	//UPROPERTY(Replicated)
 	FActionData CurrentData;
+	bool bItemDataSetup = false;
 };

@@ -3,6 +3,7 @@
 
 #include "Component/EquipComponent.h"
 #include "Actor/Item/Item.h"
+#include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 // Sets default values for this component's properties
 UEquipComponent::UEquipComponent()
@@ -10,6 +11,7 @@ UEquipComponent::UEquipComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 
 	// ...
 }
@@ -41,10 +43,25 @@ void UEquipComponent::EndAction()
 	}
 }
 
-//
-//void UEquipComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-//{
-//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//	DOREPLIFETIME(UEquipComponent, SelectItem);
-//}
+void UEquipComponent::SetSelectItem(AItem* InItem)
+{
+	SelectItem = InItem;
+	OnRep_SelectItem();
+}
+
+void UEquipComponent::OnRep_SelectItem()
+{
+	if (!SelectItem) return;
+
+	if (ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner()))
+	{
+		SelectItem->SetOwnerCharacter(OwnerCharacter);
+	}
+}
+
+void UEquipComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UEquipComponent, SelectItem);
+}

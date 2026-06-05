@@ -32,13 +32,14 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	FORCEINLINE AItem* GetCurrentItem() { return SelectItem; }
-	FORCEINLINE void SetSelectItem(AItem* InItem) { SelectItem = InItem; }
+	void SetSelectItem(AItem* InItem);
 	void EndAction();
 
 	// Potion
@@ -50,8 +51,11 @@ public:
 	FORCEINLINE FPotion* GetPotion() { return &Potion; }
 
 private:
+	UFUNCTION()
+	void OnRep_SelectItem();
+
 	TArray<AItem*> EquipItems;
-	//UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = "OnRep_SelectItem")
 	AItem* SelectItem;
 
 protected:
