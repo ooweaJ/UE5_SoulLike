@@ -16,8 +16,9 @@ public:
     virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 private:
-    FVector TargetLocationOffset;
-    FVector StartLocation;
-    float MoveDuration;
-    float ElapsedTime;
+    FVector TargetLocationOffset = FVector::ZeroVector;
+    FVector StartLocation = FVector::ZeroVector;
+    float MoveDuration = 0.f;
+    float ElapsedTime = 0.f;
+    bool bHasMoveTarget = false;
 };

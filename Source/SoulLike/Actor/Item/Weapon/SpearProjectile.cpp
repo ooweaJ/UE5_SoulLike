@@ -94,6 +94,9 @@ void ASpearProjectile::BeginPlay()
 
 void ASpearProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!HasAuthority()) return;
+	if (OtherActor == GetOwner()) return;
+
 	if (OtherActor)
 	{
 		AAIBaseCharacter* BossCharacter = Cast<AAIBaseCharacter>(OtherActor); 
@@ -101,6 +104,7 @@ void ASpearProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 		if (!BossCharacter) { return;  }
 
 		UGameplayStatics::ApplyDamage(BossCharacter, SpearThrowingDamage, nullptr, this, UDamageType::StaticClass()); 
+		SetActorEnableCollision(false);
 		SetComponentsVisibility(false);
 
 	}

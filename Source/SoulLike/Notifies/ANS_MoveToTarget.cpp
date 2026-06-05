@@ -11,8 +11,16 @@ void UANS_MoveToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 {
     Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
+    bHasMoveTarget = false;
+    MoveDuration = TotalDuration;
+    ElapsedTime = 0.0f;
+
+    if (!MeshComp) return;
     if (ACharacter* OwnerCharacter = Cast<ACharacter>(MeshComp->GetOwner()))
     {
+        if (!OwnerCharacter->HasAuthority()) return;
+        if (TotalDuration <= KINDA_SMALL_NUMBER) return;
+
         if (ABaseAIController* AIController = Cast<ABaseAIController>(OwnerCharacter->GetController()))
         {
             APawn* TargetPawn = AIController->GetTarget();
@@ -24,8 +32,7 @@ void UANS_MoveToTarget::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
                 TargetLocationOffset = TargetPawn->GetActorLocation() - DirectionToTarget * 50.0f;
 
                 StartLocation = OwnerCharacter->GetActorLocation();
-                MoveDuration = TotalDuration;
-                ElapsedTime = 0.0f;
+                bHasMoveTarget = true;
             }
         }
     }
@@ -35,8 +42,11 @@ void UANS_MoveToTarget::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 {
     Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
+    if (!MeshComp || !bHasMoveTarget || MoveDuration <= KINDA_SMALL_NUMBER) return;
     if (ACharacter* OwnerCharacter = Cast<ACharacter>(MeshComp->GetOwner()))
     {
+        if (!OwnerCharacter->HasAuthority()) return;
+
         ElapsedTime += FrameDeltaTime;
         float Alpha = FMath::Clamp(ElapsedTime / MoveDuration, 0.0f, 1.0f);
         FVector NewLocation = FMath::Lerp(StartLocation, TargetLocationOffset, Alpha);
@@ -48,9 +58,14 @@ void UANS_MoveToTarget::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenc
 {
     Super::NotifyEnd(MeshComp, Animation, EventReference);
 
+    if (!MeshComp || !bHasMoveTarget) return;
     if (ACharacter* OwnerCharacter = Cast<ACharacter>(MeshComp->GetOwner()))
     {
+        if (!OwnerCharacter->HasAuthority()) return;
+
         OwnerCharacter->SetActorLocation(TargetLocationOffset);
     }
+
+    bHasMoveTarget = false;
 }
 
