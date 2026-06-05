@@ -10,6 +10,8 @@ AItem::AItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	bAlwaysRelevant = true;
+	SetNetUpdateFrequency(30.f);
 }
 
 void AItem::SetOwnerCharacter(ACharacter* InCharacter)

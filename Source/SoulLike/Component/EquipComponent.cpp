@@ -47,6 +47,16 @@ void UEquipComponent::SetSelectItem(AItem* InItem)
 {
 	SelectItem = InItem;
 	OnRep_SelectItem();
+
+	if (SelectItem)
+	{
+		SelectItem->ForceNetUpdate();
+	}
+
+	if (AActor* OwnerActor = GetOwner())
+	{
+		OwnerActor->ForceNetUpdate();
+	}
 }
 
 void UEquipComponent::OnRep_SelectItem()
