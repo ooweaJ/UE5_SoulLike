@@ -93,11 +93,15 @@ void AGruxItem::OffUltimateAction()
 
 void AGruxItem::OnItemSkillAction()
 {
+	if (!Grux) return;
+
 	Grux->OnFlySkill(&CurrentData);
 }
 
 void AGruxItem::ItemAction3()
 {
+	if (!Grux) return;
+
 	Grux->OnSkill2();
 }
 

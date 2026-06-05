@@ -4,10 +4,13 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Engine/DamageEvents.h"
+#include "Net/UnrealNetwork.h"
 
 AGruxMeteor::AGruxMeteor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	SetReplicateMovement(true);
 
 	{
 		Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
@@ -36,15 +39,27 @@ void AGruxMeteor::Tick(float DeltaTime)
 
 }
 
+void AGruxMeteor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGruxMeteor, Target);
+	DOREPLIFETIME(AGruxMeteor, Damage);
+}
+
 void AGruxMeteor::OnTarget(uint32 num)
 {
+	if (!HasAuthority()) return;
+
 	float Delay = num * 0.5f;
 	UKismetSystemLibrary::K2_SetTimer(this, "Activate", Delay, false);
 }
 
 void AGruxMeteor::Activate()
 {
+	if (!HasAuthority()) return;
 	if (!Target) return;
+
 	FVector TargetDirection = Target->GetActorLocation() - GetActorLocation();
 
 	Projectile->Velocity = TargetDirection * 20;
@@ -53,37 +68,37 @@ void AGruxMeteor::Activate()
 
 void AGruxMeteor::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    if (ImpactParticle)
+    if (!HasAuthority()) return;
+    if (OtherActor == GetOwner()) return;
+
     {
         FVector Location = Hit.Location;
         FRotator Rotation = GetActorForwardVector().Rotation();
 
-        if (HasAuthority())
+        if (ImpactParticle)
         {
-            // 멀티캐스트 RPC로 이펙트 생성
             MultiCast_SpawnImpactEffect(Location, Rotation);
+        }
 
-            // Sphere Trace
-            TArray<FHitResult> HitResults;
-            TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-            ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
-            if (UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), Location, Location, 300.f, ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResults, true))
+        TArray<FHitResult> HitResults;
+        TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+        ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+        if (UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), Location, Location, 300.f, ObjectTypes, false, TArray<AActor*>(), EDrawDebugTrace::None, HitResults, true))
+        {
+            for (const FHitResult& HitResult : HitResults)
             {
-                for (const FHitResult& HitResult : HitResults)
+                AActor* HitActor = HitResult.GetActor();
+                if (HitActor && HitActor->ActorHasTag("Player"))
                 {
-                    AActor* HitActor = HitResult.GetActor();
-                    if (HitActor && HitActor->ActorHasTag("Player"))
-                    {
-                        //Damage
-                        float LocalDamage = 20.f;
-                        LocalDamage = LocalDamage * FMath::FRandRange(0.9f, 1.1f);
+                    float LocalDamage = Damage * FMath::FRandRange(0.9f, 1.1f);
 
-                        FDamageEvent de;
-                        HitActor->TakeDamage(LocalDamage, de, GetOwner()->GetInstigatorController(), this);
-                    }
+                    FDamageEvent de;
+                    AController* InstigatorController = GetOwner() ? GetOwner()->GetInstigatorController() : nullptr;
+                    HitActor->TakeDamage(LocalDamage, de, InstigatorController, this);
                 }
             }
         }
+
         Destroy();
     }
 }

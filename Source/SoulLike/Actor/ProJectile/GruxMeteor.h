@@ -19,12 +19,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	FORCEINLINE void SetTarget(AActor* InTarget) { Target = InTarget; }
-	FORCEINLINE void SetData(FActionData* InData) { Data = InData; }
+	FORCEINLINE void SetDamage(float InDamage) { Damage = InDamage; }
 	void OnTarget(uint32 num);
 
 	UFUNCTION()
@@ -45,6 +46,9 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	class UNiagaraSystem* ImpactParticle;
 
+	UPROPERTY(Replicated)
 	AActor* Target;
-	FActionData* Data;
+
+	UPROPERTY(Replicated)
+	float Damage = 20.f;
 };

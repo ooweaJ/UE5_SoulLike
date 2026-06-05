@@ -57,6 +57,8 @@ void AGrux::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 
 void AGrux::OnFlySkill(FActionData* InData)
 {
+    if (!HasAuthority()) return;
+
     Data = InData;
     FVector CurrentLocation = GetActorLocation();
 
@@ -79,6 +81,8 @@ void AGrux::OnFlySkill(FActionData* InData)
 
 void AGrux::OnSkill2()
 {
+    if (!HasAuthority()) return;
+
     bTravel = true;
     bApproach = true;
     Status->SetSpeed(EWalkSpeedTpye::HighRun);
@@ -86,8 +90,14 @@ void AGrux::OnSkill2()
 
 void AGrux::SpawnActorsAround(float Distance, int32 NumberOfActors)
 {
+    if (!HasAuthority()) return;
+    if (!ActorToSpawn) return;
+    if (!BaseController) return;
+
     FVector Origin = GetActorLocation();
     FRotator Rotation = GetActorRotation();
+    ACharacter* Target = BaseController->GetTarget();
+    if (!Target) return;
 
     for (int32 i = 1; i <= NumberOfActors; ++i)
     {
@@ -100,13 +110,15 @@ void AGrux::SpawnActorsAround(float Distance, int32 NumberOfActors)
         // 액터의 회전은 Z축을 기준으로 조정합니다.
         FRotator SpawnRotation = FRotator(0, Angle, 0);
 
-        if (ActorToSpawn)
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = this;
+        SpawnParams.Instigator = this;
+
+        AGruxMeteor* Meteor = GetWorld()->SpawnActor<AGruxMeteor>(ActorToSpawn, SpawnLocation, SpawnRotation, SpawnParams);
+        if (Meteor)
         {
-            if (!BaseController) return;
-            AGruxMeteor* Meteor = GetWorld()->SpawnActor<AGruxMeteor>(ActorToSpawn, SpawnLocation, SpawnRotation);
-            Meteor->SetTarget(BaseController->GetTarget());
-            Meteor->SetOwner(this);
-            Meteor->SetData(Data);
+            Meteor->SetTarget(Target);
+            Meteor->SetDamage(Data ? FMath::Max(20.f * Data->Power, 0.f) : 20.f);
             Meteor->OnTarget(i);
         }
     }
