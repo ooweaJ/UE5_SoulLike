@@ -34,8 +34,16 @@ public:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiCast_SpawnImpactEffect(FVector Location, FRotator Rotation);
+
+private:
+	void ApplyDirectHit(AActor* HitActor);
+	void Explode(const FVector& Location, const FRotator& Rotation);
+
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 	class USphereComponent* Sphere;
@@ -51,4 +59,7 @@ private:
 
 	UPROPERTY(Replicated)
 	float Damage = 20.f;
+
+	bool bExploded = false;
+	TArray<TWeakObjectPtr<AActor>> DirectHitActors;
 };
