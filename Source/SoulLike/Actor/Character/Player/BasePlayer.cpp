@@ -203,12 +203,32 @@ void ABasePlayer::MultiOnEvade_Implementation()
 	}
 }
 
-void ABasePlayer::OnStepBack()
+void ABasePlayer::OnStepBack_Implementation()
 {
+	if (!State || !Status) return;
 	if (!State->IsIdleMode()) return;
 	if (Status->SP.Current < -Status->GetEvadeCost()) return;
+
 	Status->StatusModify(Status->SP, Status->GetEvadeCost());
 	State->SetStepBackMode();
+
+	if (MontageComponent)
+	{
+		MontageComponent->PlayRoll();
+	}
+
+	MultiOnStepBack();
+}
+
+void ABasePlayer::MultiOnStepBack_Implementation()
+{
+	if (HasAuthority()) return;
+	if (!State || !Status) return;
+
+	if (MontageComponent)
+	{
+		MontageComponent->PlayRoll();
+	}
 }
 
 void ABasePlayer::OnInteraction()

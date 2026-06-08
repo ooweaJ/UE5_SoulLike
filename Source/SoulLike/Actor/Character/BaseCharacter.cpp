@@ -6,7 +6,6 @@
 #include "Component/MontageComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/DamageEvents.h"
-#include "Actor/Item/DamageType/DefaultDamageType.h"
 #include "Net/UnrealNetwork.h"
 
 ABaseCharacter::ABaseCharacter()
@@ -66,30 +65,11 @@ void ABaseCharacter::EndAction()
 	Equip->EndAction();
 }
 
-void ABaseCharacter::HitPlayMontage(TSubclassOf<UDamageType> InDamageType)
+void ABaseCharacter::MulticastPlayHitReaction_Implementation(TSubclassOf<UDamageType> InDamageType)
 {
-	if (!InDamageType) return;
-	if (UDefaultDamageType* DamageType = Cast<UDefaultDamageType>(InDamageType->GetDefaultObject()))
+	if (MontageComponent)
 	{
-		if (!MontageComponent) return;
-		switch (DamageType->Type)
-		{
-		case EDamageType::Default:
-			break;
-		case EDamageType::Hitstop:
-			MontageComponent->PlayHit();
-			break;
-		case EDamageType::Stun:
-			MontageComponent->PlayStun();
-			break;
-		case EDamageType::Knockback:
-			MontageComponent->PlayKnockBack();
-			break;
-		case EDamageType::Knockdown:
-			MontageComponent->PlayKnockDown();
-
-			break;
-		}
+		MontageComponent->PlayHitReaction(InDamageType);
 	}
 }
 
@@ -131,7 +111,7 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		}
 	}
 
-	HitPlayMontage(DamageEvent.DamageTypeClass);
+	MulticastPlayHitReaction(DamageEvent.DamageTypeClass);
 
 	return 0;
 }

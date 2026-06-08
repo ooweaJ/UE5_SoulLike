@@ -5,6 +5,8 @@
 #include "Component/StateComponent.h"
 #include "MontageComponent.generated.h"
 
+class UDamageType;
+
 USTRUCT(BlueprintType)
 struct FMontageData : public FTableRowBase
 {
@@ -45,9 +47,11 @@ public:
 	void PlayHit();
 	void PlayStun();
 	void PlayDead();
+	void PlayHitReaction(TSubclassOf<UDamageType> InDamageType);
 
 private:
 	void PlayAnimMontage(FName Key);
+	FName GetHitReactionMontageKey(TSubclassOf<UDamageType> InDamageType) const;
 
 private:
 	UPROPERTY(EditAnywhere)

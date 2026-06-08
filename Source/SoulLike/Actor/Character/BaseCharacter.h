@@ -33,7 +33,8 @@ public:
 	//virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void EndAction();
-	void HitPlayMontage(TSubclassOf<UDamageType> InDamageType);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayHitReaction(TSubclassOf<UDamageType> InDamageType);
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void Dead();
 

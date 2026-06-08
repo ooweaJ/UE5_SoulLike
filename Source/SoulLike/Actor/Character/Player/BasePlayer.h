@@ -41,7 +41,10 @@ public:
 	void OnEvade();
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiOnEvade();
+	UFUNCTION(Server, Reliable)
 	void OnStepBack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiOnStepBack();
 	void OnInteraction();
 	void UsePotion();
 
