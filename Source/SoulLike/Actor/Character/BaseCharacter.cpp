@@ -4,6 +4,7 @@
 #include "Component/StatusComponent.h"
 #include "Component/EquipComponent.h"
 #include "Component/MontageComponent.h"
+#include "Component/ActionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Net/UnrealNetwork.h"
@@ -18,6 +19,8 @@ ABaseCharacter::ABaseCharacter()
 	State->SetIsReplicated(true);
 	Status = CreateDefaultSubobject<UStatusComponent>(TEXT("StatusComponent"));
 	Status->SetIsReplicated(true);
+	Action = CreateDefaultSubobject<UActionComponent>(TEXT("ActionComponent"));
+	Action->SetIsReplicated(true);
 	MontageComponent = CreateDefaultSubobject<UMontageComponent>(TEXT("MontageComponent"));
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 }
@@ -61,8 +64,15 @@ void ABaseCharacter::EndAction()
 {
 	if (!State && !Equip) return;
 
-	State->SetIdleMode();
+	if (HasAuthority())
+	{
+		State->SetIdleMode();
+	}
 	Equip->EndAction();
+	if (Action)
+	{
+		Action->EndPredictedAction();
+	}
 }
 
 void ABaseCharacter::MulticastPlayHitReaction_Implementation(TSubclassOf<UDamageType> InDamageType)

@@ -51,12 +51,14 @@ public:
 	void SetStepBackMode();
 	void SetDeadMode();
 	void ChangeType(EStateType InNewType);
+	UFUNCTION()
+	void OnRep_Type();
 
 	void SetOnOrient();
 	void SetOffOrient();
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "State", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = "OnRep_Type", Category = "State", meta = (AllowPrivateAccess = "true"))
 	EStateType Type = EStateType::Idle;
 	class ACharacter* OwnerCharacter;
 };

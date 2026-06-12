@@ -11,6 +11,8 @@
 #include "Component/StateComponent.h"
 #include "Component/EquipComponent.h"
 #include "Component/MontageComponent.h"
+#include "Component/ActionComponent.h"
+#include "BaseGameplayTags.h"
 #include "Actor/Item/Item.h"
 #include "Actor/Item/Attachment.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -107,13 +109,9 @@ void ABasePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ABasePlayer::OnMouseL()
 {
-	if (HasAuthority())
+	if (Action)
 	{
-		MulticastOnDefaultAction();
-	}
-	else
-	{
-		ServerOnMouseL();
+		Action->TryAction(BaseGameplayTags::Ability_DefaultAction);
 	}
 }
 
@@ -245,21 +243,6 @@ void ABasePlayer::UsePotion()
 	{
 		Equip->UsePotion();
 		Status->StatusModify(Status->HP, Equip->GetPotionHealAmount());
-	}
-}
-
-void ABasePlayer::ServerOnMouseL_Implementation()
-{
-	MulticastOnDefaultAction();
-}
-
-void ABasePlayer::MulticastOnDefaultAction_Implementation()
-{
-	if (AItem* item = Equip->GetCurrentItem())
-	{
-		if (Status->SP.Current < -Status->GetAttackCost()) return;
-		item->OnDefaultAction();
-		//Status->StatusModify(Status->SP, Status->GetAttackCost());
 	}
 }
 

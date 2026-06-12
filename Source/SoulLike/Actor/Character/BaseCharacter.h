@@ -19,6 +19,7 @@ public:
 	FORCEINLINE class UStateComponent* GetState() { return State; }
 	FORCEINLINE class UEquipComponent* GetEquip() { return Equip; }
 	FORCEINLINE class UStatusComponent* GetStatus() { return Status; }
+	FORCEINLINE class UActionComponent* GetAction() { return Action; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -55,6 +56,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStatusComponent* Status;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UActionComponent* Action;
 
 	UPROPERTY(Replicated)
 	bool Parrying = false;

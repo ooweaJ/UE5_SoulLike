@@ -81,8 +81,14 @@ void UStateComponent::SetOffOrient()
 
 void UStateComponent::ChangeType(EStateType InNewType)
 {
+	if (GetOwner() && !GetOwner()->HasAuthority()) return;
+
 	EStateType prevType = Type;
 	Type = InNewType;
+}
+
+void UStateComponent::OnRep_Type()
+{
 }
 
 bool UStateComponent::IsCanCombo()

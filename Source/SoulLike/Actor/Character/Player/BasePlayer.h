@@ -48,14 +48,6 @@ public:
 	void OnInteraction();
 	void UsePotion();
 
-	UFUNCTION(Server, Reliable)
-	void ServerOnMouseL();
-	void ServerOnMouseL_Implementation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastOnDefaultAction();
-	void MulticastOnDefaultAction_Implementation();
-
 	UFUNCTION(BlueprintCallable)
 	void LockOn();
 	
