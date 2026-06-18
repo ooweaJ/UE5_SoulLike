@@ -98,7 +98,7 @@ void AAIBaseCharacter::OnMelee_Implementation(uint32 Num)
 
 void AAIBaseCharacter::MultiOnMelee_Implementation(uint32 Num)
 {
-	if (!State && !Equip) return;
+	if (!State || !Equip) return;
 
 	if (AItem* Item = Equip->GetCurrentItem())
 	{
@@ -130,7 +130,7 @@ void AAIBaseCharacter::OnSkill_Implementation(uint32 Num)
 
 void AAIBaseCharacter::MultiOnSkill_Implementation(uint32 Num)
 {
-	if (!State && !Equip) return;
+	if (!State || !Equip) return;
 	State->SetActionMode();
 	if (AItem* Item = Equip->GetCurrentItem())
 	{
@@ -157,7 +157,7 @@ void AAIBaseCharacter::MultiOnSkill_Implementation(uint32 Num)
 
 void AAIBaseCharacter::OnUltimate()
 {
-	if (!State && !Equip) return;
+	if (!State || !Equip) return;
 	State->SetActionMode();
 	if (AItem* Item = Equip->GetCurrentItem())
 		Item->OnUltimateAction();

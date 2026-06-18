@@ -62,7 +62,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 void ABaseCharacter::EndAction()
 {
-	if (!State && !Equip) return;
+	if (!State || !Equip) return;
 
 	if (HasAuthority())
 	{
@@ -85,6 +85,7 @@ void ABaseCharacter::MulticastPlayHitReaction_Implementation(TSubclassOf<UDamage
 
 void ABaseCharacter::Dead_Implementation()
 {
+	if (!State || !MontageComponent) return;
 	State->SetDeadMode();
 	MontageComponent->PlayDead();
 }

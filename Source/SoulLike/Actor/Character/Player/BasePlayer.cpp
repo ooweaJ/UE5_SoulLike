@@ -333,21 +333,13 @@ void ABasePlayer::HandlePlayerDeath()
 
 void ABasePlayer::CompletePlayerDeath_Implementation()
 {
+	if (!HasAuthority()) return;
+	if (bDeathCompletionQueued) return;
+
+	bDeathCompletionQueued = true;
 	MultiCompletePlayerDeath();
-}
 
-void ABasePlayer::MultiCompletePlayerDeath_Implementation()
-{
-	SetPrimitiveComponentsVisibility(false);
-
-	SetAttachedActorsVisiblity(false);
-
-	UNiagaraComponent* DeathDissolveComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(DeathDissolveEffect,
-		GetMesh(), NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false);
-	DeathDissolveComponent->SetVisibility(true);
-
-
-	UKismetSystemLibrary::K2_SetTimer(this, "HandlePlayerRevival", 3.f, false);
+	GetWorld()->GetTimerManager().SetTimer(PlayerRevivalTimerHandle, this, &ABasePlayer::MultiHandlePlayerRevival, 3.f, false);
 
 	AMainWorldGameMode* GameMode = Cast<AMainWorldGameMode>(UGameplayStatics::GetGameMode(this));
 
@@ -360,10 +352,37 @@ void ABasePlayer::MultiCompletePlayerDeath_Implementation()
 	}
 }
 
+void ABasePlayer::MultiCompletePlayerDeath_Implementation()
+{
+	SetPrimitiveComponentsVisibility(false);
+	SetAttachedActorsVisiblity(false);
+
+	if (DeathDissolveEffect)
+	{
+		UNiagaraComponent* DeathDissolveComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(DeathDissolveEffect,
+			GetMesh(), NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false);
+		if (DeathDissolveComponent)
+		{
+			DeathDissolveComponent->SetVisibility(true);
+		}
+	}
+}
+
+void ABasePlayer::MultiHandlePlayerRevival_Implementation()
+{
+	HandlePlayerRevival();
+}
+
 void ABasePlayer::HandlePlayerRevival()
 {
-	Status->StatusModify(Status->HP, Status->GetMaxHP());
-	State->SetIdleMode(); 
+	if (HasAuthority())
+	{
+		Status->StatusModify(Status->HP, Status->GetMaxHP() - Status->GetCurrentHP());
+		State->SetIdleMode();
+		bDeathCompletionQueued = false;
+		ForceNetUpdate();
+	}
+
 	SetPrimitiveComponentsVisibility(true);
 	SetAttachedActorsVisiblity(true);
 	SetActorEnableCollision(true);
@@ -408,7 +427,7 @@ void ABasePlayer::SetAttachedActorsVisiblity(bool bVisible)
 	for (AActor* AttachedActor : AttachedActors)
 	{
 		TArray<UActorComponent*> AttachedComponents;
-		GetComponents(AttachedComponents);
+		AttachedActor->GetComponents(AttachedComponents);
 
 		for (UActorComponent* AttachedComponent : AttachedComponents)
 		{

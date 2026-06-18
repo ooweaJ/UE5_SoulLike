@@ -59,6 +59,8 @@ public:
 	void CompletePlayerDeath();
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiCompletePlayerDeath(); 
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiHandlePlayerRevival();
 	UFUNCTION()
 	virtual void HandlePlayerRevival(); 
 
@@ -133,5 +135,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* DeathDissolveEffect; 
+
+private:
+	FTimerHandle PlayerRevivalTimerHandle;
+	bool bDeathCompletionQueued = false;
 
 };

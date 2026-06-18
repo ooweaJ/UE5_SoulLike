@@ -33,6 +33,6 @@ public:
 	float WeaponDamage = 100.f;
 	float AttackSpeed = 1.f;
 	uint32 ComboCount = 1;
-	bool bCanCombo;
-	bool bSucceed;
+	bool bCanCombo = false;
+	bool bSucceed = false;
 };

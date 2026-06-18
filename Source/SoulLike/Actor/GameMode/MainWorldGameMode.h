@@ -32,6 +32,4 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TMap<FString, TSubclassOf<ABasePlayer>> ClassMap;
-
-	FTimerHandle RespawnTimerHandle; 
 };

@@ -83,6 +83,7 @@ void ASpearman::SetupSpearProjectile()
 		SpearProjectile = GetWorld()->SpawnActor<ASpearProjectile>(Projecttileclass, SocketLocation, FRotator::ZeroRotator, SpawnParams);
 		SpearProjectile->SetActorEnableCollision(false);
 	}
+	if (!SpearProjectile) return;
 
 	UProjectileMovementComponent* ProjectileMovement = SpearProjectile->FindComponentByClass<UProjectileMovementComponent>();
 	if (ProjectileMovement)
@@ -99,7 +100,10 @@ void ASpearman::HandlePlayerRevival()
 {
 	Super::HandlePlayerRevival(); 
 
-	SpearProjectile->SetComponentsVisibility(false); 
+	if (SpearProjectile)
+	{
+		SpearProjectile->SetComponentsVisibility(false);
+	}
 }
 
 void ASpearman::OnQ()
@@ -137,7 +141,11 @@ void ASpearman::OnThrowSpearMontageEnded(UAnimMontage* Montage, bool bInterrupte
 			UAnimNotify* AnimNotify = NotifyEvent.Notify; 
 			if (UAN_ThrowSpear* ThrowSpearNotify = Cast<UAN_ThrowSpear>(AnimNotify))
 			{
-				SpearProjectile->Destroy(); 
+				if (SpearProjectile)
+				{
+					SpearProjectile->Destroy();
+					SpearProjectile = nullptr;
+				}
 
 				TArray<AActor*> AttachedActors; 
 				GetAttachedActors(AttachedActors); 

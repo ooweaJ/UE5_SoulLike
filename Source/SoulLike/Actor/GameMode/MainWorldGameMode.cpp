@@ -64,11 +64,11 @@ void AMainWorldGameMode::SpawnRelevantPlayer(APlayerController* InPlayerControll
 
 void AMainWorldGameMode::Respawn(APlayerController* InPlayerController, float RespawnTime)
 {
-	FTimerDelegate TimerDelegate; 
-	TimerDelegate.BindLambda([this, InPlayerController]()
-		{
-			RevertToPlayerStart(InPlayerController); 
-		});
+	if (!InPlayerController) return;
+
+	FTimerHandle RespawnTimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUObject(this, &AMainWorldGameMode::RevertToPlayerStart, InPlayerController);
 	GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, TimerDelegate, RespawnTime, false);
 }
 
