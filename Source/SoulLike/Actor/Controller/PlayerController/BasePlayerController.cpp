@@ -96,6 +96,12 @@ void ABasePlayerController::OnUnPossess()
 	Super::OnUnPossess(); 
 }
 
+ABasePlayer* ABasePlayerController::RefreshPlayer()
+{
+	Player = Cast<ABasePlayer>(GetPawn());
+	return Player;
+}
+
 void ABasePlayerController::OnMove(const FInputActionValue& InputActionValue)
 {
 	FVector2D MovementVector = InputActionValue.Get<FVector2D>();
@@ -150,6 +156,7 @@ void ABasePlayerController::OnMove(const FInputActionValue& InputActionValue)
 
 void ABasePlayerController::OnLookMouse(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (!Player)return;
 	if (!Player->bLockOn)
 	{
@@ -161,13 +168,14 @@ void ABasePlayerController::OnLookMouse(const FInputActionValue& InputActionValu
 
 void ABasePlayerController::OnJump(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->Jump();
 }
 
 void ABasePlayerController::OnEvade(const FInputActionValue& InputActionValue)
 {
-	Player = Cast<ABasePlayer>(GetPawn());
+	RefreshPlayer();
 	if (!Player) return;
 
 	FVector LastInput = Player->GetLastMovementInputVector();
@@ -185,6 +193,7 @@ void ABasePlayerController::OnEvade(const FInputActionValue& InputActionValue)
 
 void ABasePlayerController::OnMouseL(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OnMouseL();
 
@@ -192,48 +201,56 @@ void ABasePlayerController::OnMouseL(const FInputActionValue& InputActionValue)
 
 void ABasePlayerController::OnMouseR(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if(Player)
 		Player->OnMouseR();
 }
 
 void ABasePlayerController::OnShift(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OnShift();
 }
 
 void ABasePlayerController::OffShift(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OffShift();
 }
 
 void ABasePlayerController::OffMouseL(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OffMouseL();
 }
 
 void ABasePlayerController::OffMouseR(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OffMouseR();
 }
 
 void ABasePlayerController::OnQ(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OnQ(); 
 }
 
 void ABasePlayerController::OnE(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->OnInteraction();
 }
 
 void ABasePlayerController::OnR(const FInputActionValue& InputActionValue)
 {
+	RefreshPlayer();
 	if (Player)
 		Player->UsePotion();
 }

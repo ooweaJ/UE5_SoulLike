@@ -40,6 +40,8 @@ protected:
 	void OnESC(const FInputActionValue& InputActionValue); 
 	
 private:
+	class ABasePlayer* RefreshPlayer();
+
 	class ABasePlayer* Player;
 
 	TSubclassOf<class UPauseMenuWidget> PauseMenuWidgetClass; 
