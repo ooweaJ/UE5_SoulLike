@@ -45,3 +45,20 @@
 - BAT 서버/클라이언트를 완전히 종료 후 재실행해서 새 DLL로 사망 후 3초 복구, 위치 리스폰, 입력 복구를 확인해야 한다.
 - 콤보 단계 자체는 아직 명시적인 서버 확정 combo index를 복제하지 않으므로, 지연 환경에서 콤보 단계가 어긋나면 `ActiveAction`에 combo index/action tag를 포함하는 후속 작업이 필요하다.
 - 데드 몽타주 notify가 빠진 캐릭터/몽타주가 있는지 에셋 검사가 필요하다.
+
+## 부활 후 이동 불가 보정
+
+### 문제
+
+- 부활 후 입력 ignore는 풀리지만 플레이어 이동 입력이 계속 막힐 수 있었다.
+- 이동 입력 처리에서 `Status->IsCanMove()`를 확인하는데, 사망/데드 몽타주 중 `SetStop()` 된 값을 부활 시 `SetMove()`로 복구하지 않았다.
+
+### 수정
+
+- `ABasePlayer::HandlePlayerRevival()`에서 `Status->SetMove()`를 호출해 부활 직후 이동 가능 상태를 복구했다.
+- 서버 권한 복구 구간의 `Status`, `State` 널 가드를 보강했다.
+
+### 검증
+
+- `SoulLikeEditor Win64 Development` 빌드 성공.
+- UBT 결과: `Result: Succeeded`

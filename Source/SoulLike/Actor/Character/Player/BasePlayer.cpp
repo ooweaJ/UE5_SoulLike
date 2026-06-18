@@ -375,10 +375,21 @@ void ABasePlayer::MultiHandlePlayerRevival_Implementation()
 
 void ABasePlayer::HandlePlayerRevival()
 {
+	if (Status)
+	{
+		Status->SetMove();
+	}
+
 	if (HasAuthority())
 	{
-		Status->StatusModify(Status->HP, Status->GetMaxHP() - Status->GetCurrentHP());
-		State->SetIdleMode();
+		if (Status)
+		{
+			Status->StatusModify(Status->HP, Status->GetMaxHP() - Status->GetCurrentHP());
+		}
+		if (State)
+		{
+			State->SetIdleMode();
+		}
 		bDeathCompletionQueued = false;
 		ForceNetUpdate();
 	}
