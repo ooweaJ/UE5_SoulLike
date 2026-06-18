@@ -43,6 +43,7 @@ private:
 	void CommitAction(const FGameplayTag& ActionTag);
 	void PlayActionLocal(const FGameplayTag& ActionTag);
 	void CacheOwnerComponents();
+	bool IsOwnerMontagePlaying() const;
 
 private:
 	UPROPERTY(ReplicatedUsing = "OnRep_ActiveAction")

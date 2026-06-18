@@ -4,6 +4,7 @@
 #include "Component/EquipComponent.h"
 #include "Component/StateComponent.h"
 #include "Component/StatusComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
@@ -30,6 +31,7 @@ void UActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void UActionComponent::TryAction(const FGameplayTag& ActionTag)
 {
 	if (!ActionTag.IsValid()) return;
+	CacheOwnerComponents();
 
 	if (GetOwner() && GetOwner()->HasAuthority())
 	{
@@ -53,6 +55,7 @@ void UActionComponent::EndPredictedAction()
 
 void UActionComponent::Server_TryAction_Implementation(FGameplayTag ActionTag)
 {
+	CacheOwnerComponents();
 	CommitAction(ActionTag);
 }
 
@@ -65,15 +68,23 @@ bool UActionComponent::CanStartAction(const FGameplayTag& ActionTag) const
 {
 	if (!ActionTag.IsValid()) return false;
 	if (!Equip || !State || !Status) return false;
+	if (!Equip->GetCurrentItem()) return false;
 	if (ActionTag != BaseGameplayTags::Ability_DefaultAction) return false;
 	if (Status->SP.Current < -Status->GetAttackCost()) return false;
 
-	if (!GetOwner()->HasAuthority() && bPredictedActionInProgress && !State->IsCanCombo())
+	if (State->IsCanCombo()) return true;
+
+	if (State->IsIdleMode())
 	{
-		return false;
+		return !bPredictedActionInProgress || !IsOwnerMontagePlaying();
 	}
 
-	return State->IsIdleMode() || State->IsCanCombo();
+	if (State->IsActionMode() && !IsOwnerMontagePlaying())
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void UActionComponent::CommitAction(const FGameplayTag& ActionTag)
@@ -115,4 +126,15 @@ void UActionComponent::CacheOwnerComponents()
 	Equip = OwnerCharacter->GetComponentByClass<UEquipComponent>();
 	State = OwnerCharacter->GetComponentByClass<UStateComponent>();
 	Status = OwnerCharacter->GetComponentByClass<UStatusComponent>();
+}
+
+bool UActionComponent::IsOwnerMontagePlaying() const
+{
+	if (!OwnerCharacter) return false;
+
+	const USkeletalMeshComponent* Mesh = OwnerCharacter->GetMesh();
+	if (!Mesh) return false;
+
+	const UAnimInstance* AnimInstance = Mesh->GetAnimInstance();
+	return AnimInstance && AnimInstance->IsAnyMontagePlaying();
 }
