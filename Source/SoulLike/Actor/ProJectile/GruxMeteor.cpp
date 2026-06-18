@@ -4,8 +4,19 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "Engine/DamageEvents.h"
 #include "Net/UnrealNetwork.h"
+
+namespace
+{
+	const TCHAR* DefaultMeteorImpactPath = TEXT("/Game/MegaMagicVFXBundle/VFX/MagicAuraVFX/VFX/Meteor/Systems/N_Meteor.N_Meteor");
+
+	UNiagaraSystem* GetDefaultMeteorImpactEffect()
+	{
+		return LoadObject<UNiagaraSystem>(nullptr, DefaultMeteorImpactPath);
+	}
+}
 
 AGruxMeteor::AGruxMeteor()
 {
@@ -104,10 +115,7 @@ void AGruxMeteor::Explode(const FVector& Location, const FRotator& Rotation)
 
     bExploded = true;
 
-    if (ImpactParticle)
-    {
-        MultiCast_SpawnImpactEffect(Location, Rotation);
-    }
+    MultiCast_SpawnImpactEffect(Location, Rotation);
 
     TArray<FHitResult> HitResults;
     TArray<AActor*> DamagedActors;
@@ -154,8 +162,9 @@ void AGruxMeteor::Explode(const FVector& Location, const FRotator& Rotation)
 
 void AGruxMeteor::MultiCast_SpawnImpactEffect_Implementation(FVector Location, FRotator Rotation)
 {
-    if (ImpactParticle)
+	UNiagaraSystem* Effect = ImpactParticle ? ImpactParticle : GetDefaultMeteorImpactEffect();
+    if (Effect)
     {
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ImpactParticle, Location, Rotation);
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), Effect, Location, Rotation);
     }
 }

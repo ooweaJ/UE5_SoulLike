@@ -81,3 +81,20 @@
 
 - `SoulLikeEditor Win64 Development` 빌드 성공.
 - UBT 결과: `Result: Succeeded`
+
+## Grux 메테오 폭발 이펙트 기본값 보정
+
+### 문제
+
+- `/Game/_dev/Actor/Projectile/BP_GruxMeteor`의 `ImpactParticle` 기본값이 `None`이었다.
+- 기존 코드는 `ImpactParticle`이 있을 때만 `MultiCast_SpawnImpactEffect()`를 호출해서, 폭발 판정이 나도 파티클이 보이지 않았다.
+
+### 수정
+
+- `AGruxMeteor::Explode()`에서 폭발 시 항상 이펙트 멀티캐스트를 호출하도록 했다.
+- 멀티캐스트 실행 시 `ImpactParticle`이 비어 있으면 `/Game/MegaMagicVFXBundle/VFX/MagicAuraVFX/VFX/Meteor/Systems/N_Meteor`를 기본 Niagara로 로드해 재생하도록 했다.
+
+### 검증
+
+- `SoulLikeEditor Win64 Development` 빌드 성공.
+- UBT 결과: `Result: Succeeded`
