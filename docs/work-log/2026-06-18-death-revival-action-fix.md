@@ -62,3 +62,22 @@
 
 - `SoulLikeEditor Win64 Development` 빌드 성공.
 - UBT 결과: `Result: Succeeded`
+
+## Grux 메테오 바닥 폭발 판정 보정
+
+### 문제
+
+- `AGruxMeteor`가 플레이어 overlap에서 직접 데미지를 주고, 폭발 이펙트와 범위 데미지는 바닥 등 블로킹 hit에서만 실행되는 구조였다.
+- 플레이어와 먼저 닿는 경우 폭발이 안 보이거나 의도와 다르게 직접 피격처럼 느껴질 수 있었다.
+- 기존 범위 데미지는 같은 플레이어가 여러 컴포넌트로 trace되면 중복 데미지가 들어갈 여지가 있었다.
+
+### 수정
+
+- 플레이어 hit/overlap에서는 직접 데미지를 주지 않고 메테오가 계속 진행하도록 했다.
+- 바닥 등 블로킹 대상에 맞아 `Explode()`가 호출될 때만 이펙트와 범위 데미지가 발생하도록 정리했다.
+- 폭발 반경을 `ExplosionRadius`로 분리하고, 폭발 범위 안 플레이어에게 actor 기준 한 번만 데미지와 넉백을 적용하도록 했다.
+
+### 검증
+
+- `SoulLikeEditor Win64 Development` 빌드 성공.
+- UBT 결과: `Result: Succeeded`

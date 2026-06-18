@@ -41,7 +41,6 @@ public:
 	void MultiCast_SpawnImpactEffect(FVector Location, FRotator Rotation);
 
 private:
-	void ApplyDirectHit(AActor* HitActor);
 	void Explode(const FVector& Location, const FRotator& Rotation);
 
 private:
@@ -60,6 +59,8 @@ private:
 	UPROPERTY(Replicated)
 	float Damage = 20.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float ExplosionRadius = 300.f;
+
 	bool bExploded = false;
-	TArray<TWeakObjectPtr<AActor>> DirectHitActors;
 };
